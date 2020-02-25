@@ -2,7 +2,7 @@
 
 Dijkstra algorithm being run in parallel. Dijkstra algorithm used from [GeeksforGeeks Dijkstra algorithm](https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/).
 
-## Installation
+## How to run
 1. Make mpi_hostfile that saves all host address that will be used.
 Example inside mpi_hostfile:
 ```sh
@@ -15,7 +15,14 @@ Example inside mpi_hostfile:
 <ip-address 6>
 ```
 2. Copy dijkstra.c to your machine
-3. Compile dijkstra.c to an executable-name of your choice
+3. Run Makefile
+```sh
+$ make
+```
+
+Do this part if you don't want to use Makefile (as continuation from step 2):
+3. Create folder "output" (output file will be saved to output folder)
+4. Compile dijkstra.c
 ```sh
 $ mpicc dijkstra.c -o <executable-name>
 ```
@@ -25,8 +32,7 @@ Example:
 $ scp <executable-name> <user>@<ip-address>:~
 ```
 
-## Usage
-Run the program with command
+5. Run the program with command
 ```sh
 $ mpirun -np <process-number> --hostfile mpi_hostfile <executable_name>
 ```
