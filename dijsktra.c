@@ -55,7 +55,7 @@ void fill_matrix(int** mat, int n) {
 void write_file(int** mat, int n) {
     FILE *fptr;
 
-    fptr = fopen("result.txt", "w");
+    fptr = fopen("./output/result.txt", "w");
 
     if (fptr == NULL) {
         printf("Error creating file\n");
@@ -73,6 +73,10 @@ void write_file(int** mat, int n) {
 
 double get_duration_in_us(clock_t start_time, clock_t end_time) {
     return ((double)(end_time - start_time) * 1000000 / CLOCKS_PER_SEC);
+}
+
+void print_log(int rank, char* log) {
+    printf("Rank %d: %s\n", rank, log);
 }
 
 int main(int argc, char* argv[]) {
@@ -101,9 +105,6 @@ int main(int argc, char* argv[]) {
     // Seed for random
     srand(13517059);
 
-    // Fill matrix with random value
-    fill_matrix(mat, n);
-
     clock_t start_time = clock();
 
     MPI_Status status;
@@ -114,8 +115,13 @@ int main(int argc, char* argv[]) {
     int size;
     MPI_Comm_size(comm, &size);
 
+    // int rank;
     int rank;
     MPI_Comm_rank(comm, &rank);
+
+    // Fill matrix with random value
+    print_log(rank, "Filling Matrix");
+    fill_matrix(mat, n);
 
     /**
      * Algorithm
@@ -132,6 +138,7 @@ int main(int argc, char* argv[]) {
     //     printf("\n");
     // }
 
+    print_log(rank, "Doing Dijkstra...");
     for (int i = rank; i < n; i += size) {
         dijkstra(mat, i, n, res_mat[i]);
         if (rank != 0)
@@ -139,6 +146,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (rank == 0) {
+        printf("Master Receiving...\n");
         for (int i = 1; i < n; i++) {
             if (i % size != 0)
                 MPI_Recv(res_mat[i], n, MPI_INT, i % size, 1, comm, &status);
@@ -155,12 +163,11 @@ int main(int argc, char* argv[]) {
 
         clock_t end_time = clock();
         printf("Finished in %f microseconds\n", get_duration_in_us(start_time, end_time));
+        write_file(res_mat, n);
     }
 
-    write_file(res_mat, n);
-
     /**
-     * Destroy
+     * Free
      **/
 
     for (int i = 0; i < n; i++) {
