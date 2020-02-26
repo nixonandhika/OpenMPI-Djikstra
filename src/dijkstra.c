@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <time.h>
 
-int minDistance(int dist[], bool sptSet[], int V) {
+int minDistance(int *dist, bool *sptSet, int V) {
     int min = INT_MAX;
     int min_index;
 
@@ -55,13 +55,14 @@ void fill_matrix(int** mat, int n) {
 void write_file(int** mat, int n) {
     FILE *fptr;
 
-    fptr = fopen("./output/result.txt", "w");
+    fptr = fopen("output.txt", "w");
 
     if (fptr == NULL) {
         printf("Error creating file\n");
         exit(1);
     }
 
+    printf("Writing to File...\n");
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++)
             fprintf(fptr, "%d ", mat[i][j]);
@@ -144,6 +145,8 @@ int main(int argc, char* argv[]) {
         if (rank != 0)
             MPI_Send(res_mat[i], n, MPI_INT, 0, 1, comm);
     }
+
+    MPI_Barrier(comm);
 
     if (rank == 0) {
         printf("Master Receiving...\n");
